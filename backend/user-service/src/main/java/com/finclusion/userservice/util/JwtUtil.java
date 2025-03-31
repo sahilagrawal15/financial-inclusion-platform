@@ -1,5 +1,6 @@
 package com.finclusion.userservice.util;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -12,7 +13,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret-key}")
     private String secret;
 
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours
@@ -31,5 +32,13 @@ public class JwtUtil {
     private Key getSignKey() {
         byte[] keyBytes = secret.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public Claims validateToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

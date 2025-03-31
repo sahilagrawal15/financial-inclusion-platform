@@ -42,4 +42,6 @@ logs/
 *.tmp
 
 .terraform/
+**/src/main/resources/application.properties
+
 

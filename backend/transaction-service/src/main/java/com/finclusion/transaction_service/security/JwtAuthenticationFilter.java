@@ -1,15 +1,20 @@
 package com.finclusion.transaction_service.security;
 
 import com.finclusion.transaction_service.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
@@ -26,24 +31,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("Missing or invalid Authorization header");
+            filterChain.doFilter(request, response); // Let it proceed
             return;
         }
 
         String token = authHeader.substring(7);
-
-        if (!jwtUtil.isTokenValid(token)) {
+        Claims claims;
+        try {
+            claims = jwtUtil.validateToken(token);
+        } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("Invalid or expired JWT token");
+            response.getWriter().write("Invalid JWT Token");
             return;
         }
 
-        System.out.println("Authorization Header: " + authHeader);
-        System.out.println("Token valid: " + jwtUtil.isTokenValid(token));
+        String userId = claims.getSubject();
 
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-        // Token valid → Continue
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
         filterChain.doFilter(request, response);
     }
 }
