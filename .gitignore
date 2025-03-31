@@ -1,0 +1,45 @@
+
+# Java compiled classes and build output
+*.class
+*.jar
+target/
+build/
+
+# Node.js dependencies and build output
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# AWS and cloud configuration
+.aws/
+*.pem
+
+# Environment and secret files
+*.env
+*.secret
+
+# IDE-specific files
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# Temporary and log files
+*.log
+temp/
+logs/
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Backup files
+*.bak
+*.gho
+*.ori
+*.orig
+*.tmp
+
+.terraform/
+
